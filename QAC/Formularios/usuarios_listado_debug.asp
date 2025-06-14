@@ -7,10 +7,17 @@ Response.Charset = "UTF-8"
 
 On Error Resume Next
 
-sql = "SELECT MN, Nombre, Apellido, Tipo, Planta, Habilitado FROM Usuarios ORDER BY Apellido, Nombre"
+Set cmd = Server.CreateObject("ADODB.Command")
+With cmd
+    .ActiveConnection = conn
+    .CommandText = "SELECT MN, Nombre, Apellido, Tipo, Planta, Habilitado FROM Usuarios ORDER BY Apellido, Nombre"
+    .CommandType = 1 ' adCmdText
+End With
 
 Set rs = Server.CreateObject("ADODB.Recordset")
-rs.Open sql, conn
+rs.CursorLocation = 3 ' adUseClient
+
+rs.Open cmd, , 1, 3 ' adOpenKeyset, adLockOptimistic
 
 If Err.Number <> 0 Then
     Response.Write "<p><strong>Error al abrir recordset:</strong> " & Err.Description & "</p>"
@@ -82,6 +89,7 @@ End If
 <%
 If rs.State = 1 Then rs.Close
 Set rs = Nothing
+Set cmd = Nothing
 conn.Close
 Set conn = Nothing
 %>
